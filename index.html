@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZinGoo</title>
+<link rel="stylesheet" href="styles/styles.css">
+</head>
+<body>
+    <div id="container">
+        <div id="video-container">
+            <video id="main-video" autoplay loop muted>
+                <video id="videoPlayer" controls></video>
+                <source src="plugins/ZinGoo.mp4" type="video/mp4">
+                <!-- Alternatif bir video formatı için buraya ekleyebilirsiniz -->
+                <!-- <source src="video.webm" type="video/webm"> -->
+                Tarayıcınız video elementini desteklemiyor.
+            </video>
+        </div>
+        <div id="camera-container">
+            <p>Bağlanmak İçin Başlayın</p>
+            <video id="user-video" autoplay></video>
+            <button id="start-button">Başla</button>
+        </div>
+    </div>
+   
+</body>
+<script src="scripts/camera.js"></script>
+<script src="scripts/server.js"></script>
+<script src="scripts/local.js"></script>
+<script src="scripts/random.js"></script>
+<script src="scripts/script2.js"></script>
+<script>
+    // Bu örnekte, temel olarak WebRTC'nin getUserMedia fonksiyonu kullanılır.
+
+// Kullanıcı medya akışını alır (video ve ses)
+navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+  .then(function (localStream) {
+    var videoElement = document.getElementById('localVideo');
+    // Kullanıcının kendi videosunu göster
+    videoElement.srcObject = localStream;
+
+    // WebRTC için peer bağlantısını oluştur
+    var peerConnection = new RTCPeerConnection();
+
+    // Kullanıcı medya akışını ekler
+    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+    // Uzak kullanıcıdan gelen veriyi işler
+    peerConnection.ontrack = function (event) {
+      var remoteVideoElement = document.getElementById('remoteVideo');
+      // Uzak kullanıcının videosunu göster
+      remoteVideoElement.srcObject = event.streams[0];
+    };
+
+    // SDP ve ICE bilgilerini paylaşmak için bir sinyal sunucusuna bağlanır
+    // Bu kısım sinyal sunucusuna bağlantıyı kurmak için gereklidir, ancak sunucu tarafı uygulama içerisinde değildir
+  })
+  .catch(function (err) {
+    console.error('getUserMedia Hatası: ', err);
+  });
+
+</script>
+</html>
